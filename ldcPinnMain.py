@@ -38,12 +38,12 @@ def main(args):
     rho = 1.
     Re = 100
     
-    #pinn = lc.LdcPinnTrainer(layers,boundaryPoints,collocationPoints,H,Uo,rho,Re,trainFromScratch = False)
+    pinn = lc.LdcPinnTrainer(layers,boundaryPoints,collocationPoints,H,Uo,rho,Re,trainFromScratch = False)
 
     #pinn.train()
     
     modelValidator = lc.LdcPinnModelValidator(layers)
-    modelValidator.generatePlot2()
+    #modelValidator.generatePlot2()
 
     return 0
 

@@ -122,14 +122,31 @@ class LdcPinnTrainer():
         
         X_north = np.transpose(np.vstack((x_mid,y_high)))
         U_north = np.transpose(np.vstack((Uo*np.ones(wall_points), np.zeros(wall_points))))
+        P_north = np.zeros((X_north.shape[0],1))
         
         X_boundary = np.vstack((X_east,X_west,X_south,X_north))
         U_boundary = np.vstack((U_east,U_west,U_south,U_north))
         
+        X_px_boundary = np.vstack((X_east,X_west))
+        np.random.shuffle(X_px_boundary)
+        px_boundary = np.zeros((X_px_boundary.shape[0],1))
+        
+        X_py_boundary = np.vstack((X_north,X_south))
+        np.random.shuffle(X_py_boundary)
+        py_boundary = np.zeros((X_py_boundary.shape[0],1))
+                
         random_index = np.arange(4*wall_points)
         np.random.shuffle(random_index)
         
-        return X_boundary[random_index], U_boundary[random_index]
+        np.random.shuffle(X_north)
+        retVal = {
+            'VELOCITY_BC'   : (X_boundary[random_index], U_boundary[random_index]),
+            'P_X_BC'        : (X_px_boundary, px_boundary),
+            'P_Y_BC'        : (X_py_boundary, py_boundary),
+            'PRESSURE_BC'   : (X_north, P_north)
+        }
+        
+        return retVal
 
     def getCollocationTrainingData(self, collocation_points):
         #x_range = np.linspace(self.x_domain[0],self.x_domain[1],collocation_points)
@@ -142,7 +159,8 @@ class LdcPinnTrainer():
         return X_collocation
         
     def refreshTrainingData(self):
-        X_boundary, U_boundary = self.getBoundaryConditionTrainingData(self.wall_points, self.Uo)
+        bcTrainingData = self.getBoundaryConditionTrainingData(self.wall_points, self.Uo)
+        X_boundary, U_boundary = bcTrainingData['VELOCITY_BC']
         self.x_boundary = torch.tensor(X_boundary[:,0].reshape(-1, 1),
                                 dtype=torch.float32,
                                 requires_grad=True, device=self.device)
