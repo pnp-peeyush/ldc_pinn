@@ -1,0 +1,30 @@
+Pressure Field Solver (1 - Conjugate Gradient, 2 - Gaussian Elimination Banded Solver)
+1
+Restart from prior run (0 - NO, Not even if values exist, 1 - YES, if values exist)
+0
+Energy Calculation Desired (0 - NO, 1 - YES) WILL BE ENABLED IF REQUIRED, IF SET TO OFF.
+0
+Free stream values - Ux, Uy , P, T
+0.0d00    0.000d00    0.0001d00    0.0d00
+ ntime, transient_on, dtfixed, dtfix,   iwrite
+10000   0             0        1.0d-5   10
+csafm, theta1
+0.7d00 1.0d00   
+Re, Pr, Ra, Ri 
+100.0d00 0.71d00 1000.0d00 0.0d00 
+Convection Type (1 - Natural, 0 - Mixed/Forced)
+0
+pnode - Node in domain for Pressure BC if no other Pressure BCs exist
+1
+Output Controls - Every N iterations, Every N CPU seconds, Simulated Time Interval (transient only), End Simulation Time (transient only)
+10000 3600 1.0 10.0
+Conjugate Gradient Convergence Tolerances - Relative and Absolute Residual. Zero for OFF
+0.1  1.0d-18
+Steady State Convergence Tolerances - L2 Norm - Velocity and Energy (1 - ON, 0 - OFF) then tolerance itself
+1 1.0d-06 1 1.0d-07
+Output Formats (1 - ON/0 - OFF) Paraview and Tecplot, Nusselt Number Calculation (1 - ON/0 -OFF), Flag of Nusselt Calc Boundary
+1 1 1 501
+Run Time Adjustable Option (1 - Yes, if this file modified, values will be re-read, 0 - NO)
+1
+
+ 
