@@ -174,6 +174,39 @@ class LdcPinnTrainer():
                                 dtype=torch.float32,
                                 requires_grad=True, device=self.device)
         
+        X_px_boundary, P_x_boundary = bcTrainingData['P_X_BC']
+        self.x_px_boundary = torch.tensor(X_px_boundary[:,0].reshape(-1, 1),
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        self.y_px_boundary = torch.tensor(X_px_boundary[:,1].reshape(-1, 1),
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        self.p_x_boundary = torch.tensor(P_x_boundary,
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        
+        X_py_boundary, P_y_boundary = bcTrainingData['P_Y_BC']
+        self.x_py_boundary = torch.tensor(X_py_boundary[:,0].reshape(-1, 1),
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        self.y_py_boundary = torch.tensor(X_py_boundary[:,1].reshape(-1, 1),
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        self.p_y_boundary = torch.tensor(P_y_boundary,
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        
+        X_top_boundary, P_top_boundary = bcTrainingData['PRESSURE_BC']
+        self.x_top_boundary = torch.tensor(X_top_boundary[:,0].reshape(-1, 1),
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        self.y_top_boundary = torch.tensor(X_top_boundary[:,1].reshape(-1, 1),
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        self.p_top_boundary = torch.tensor(P_top_boundary,
+                                dtype=torch.float32,
+                                requires_grad=True, device=self.device)
+        
         X_collocation = self.getCollocationTrainingData(self.collocation_points)
         self.x_collocation = torch.tensor(X_collocation[:,0].reshape(-1, 1),
                                 dtype=torch.float32,
@@ -181,6 +214,12 @@ class LdcPinnTrainer():
         self.y_collocation = torch.tensor(X_collocation[:,1].reshape(-1, 1),
                                 dtype=torch.float32,
                                 requires_grad=True, device=self.device)
+        
+        """ print(list(map(lambda x: x.size(), [self.x_boundary,self.y_boundary,self.u_boundary,self.v_boundary,
+                                          self.x_px_boundary,self.y_px_boundary,self.p_x_boundary,
+                                          self.x_py_boundary,self.y_py_boundary,self.p_y_boundary,
+                                          self.x_top_boundary,self.y_top_boundary,self.p_top_boundary,
+                                          self.x_collocation,self.y_collocation]))) """
 
     def closure(self):
         #print("calling closure ...")
