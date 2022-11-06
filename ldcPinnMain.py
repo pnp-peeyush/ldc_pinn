@@ -31,18 +31,19 @@ def main(args):
     configReader = lcon.ConfigurationsReader('default')
 
     layers = configReader.getLayers()
-    boundaryPoints = 2500         #actual number of training points at boundary = 4x this value
-    collocationPoints = 350     #actual number of collocation training points = square of this value
+    boundaryPoints = 5000         #actual number of training points at boundary = 4x this value
+    collocationPoints = 400     #actual number of collocation training points = square of this value
     H = 1.
     Uo = 1.
     rho = 1.
     Re = 100
     
-    pinn = lc.LdcPinnTrainer(layers,boundaryPoints,collocationPoints,H,Uo,rho,Re,trainFromScratch = False)
+    pinn = lc.LdcPinnTrainer(layers,boundaryPoints,collocationPoints,H,Uo,rho,Re,trainFromScratch = True)
 
-    #pinn.train()
+    pinn.train()
     
-    modelValidator = lc.LdcPinnModelValidator(layers)
+    #modelValidator = lc.LdcPinnModelValidator(layers)
+    #modelValidator.generatePlot1()
     #modelValidator.generatePlot2()
 
     return 0

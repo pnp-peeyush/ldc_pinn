@@ -57,6 +57,20 @@ class LdcPinnTrainer():
     
     def flowVariables(self,x,y): 
         return self.network( torch.hstack((x, y)) )
+    
+    def pxBcError(self, x, y):
+        uvp = self.flowVariables(x, y)
+        p = uvp[:,2]
+        dpdx = torch.autograd.grad(p, x, grad_outputs=torch.ones_like(p), 
+                                   retain_graph=True, create_graph=False)[0].reshape(1,-1)[0]
+        return dpdx
+    
+    def pyBcError(self,x,y):
+        uvp = self.flowVariables(x, y)
+        p = uvp[:,2]
+        dpdy = torch.autograd.grad(p, y, grad_outputs=torch.ones_like(p), 
+                                   retain_graph=True, create_graph=False)[0].reshape(1,-1)[0]
+        return dpdy
         
     def costFunction(self, x,y):
         uvp = self.flowVariables(x,y)
@@ -122,18 +136,18 @@ class LdcPinnTrainer():
         
         X_north = np.transpose(np.vstack((x_mid,y_high)))
         U_north = np.transpose(np.vstack((Uo*np.ones(wall_points), np.zeros(wall_points))))
-        P_north = np.zeros((X_north.shape[0],1))
+        P_north = np.zeros((X_north.shape[0]))
         
         X_boundary = np.vstack((X_east,X_west,X_south,X_north))
         U_boundary = np.vstack((U_east,U_west,U_south,U_north))
         
         X_px_boundary = np.vstack((X_east,X_west))
         np.random.shuffle(X_px_boundary)
-        px_boundary = np.zeros((X_px_boundary.shape[0],1))
+        px_boundary = np.zeros((X_px_boundary.shape[0]))
         
         X_py_boundary = np.vstack((X_north,X_south))
         np.random.shuffle(X_py_boundary)
-        py_boundary = np.zeros((X_py_boundary.shape[0],1))
+        py_boundary = np.zeros((X_py_boundary.shape[0]))
                 
         random_index = np.arange(4*wall_points)
         np.random.shuffle(random_index)
@@ -230,16 +244,20 @@ class LdcPinnTrainer():
 
         # u & f predictions:
         u_prediction = self.flowVariables(self.x_boundary, self.y_boundary)
+        px_prediction = self.pxBcError(self.x_px_boundary, self.y_py_boundary)
+        py_prediction = self.pyBcError(self.x_py_boundary, self.y_py_boundary)
+        p_top_prediction = self.flowVariables(self.x_top_boundary, self.y_top_boundary)[:,2]
         f_prediction = self.costFunction(self.x_collocation, self.y_collocation)
 
-        #print(u_prediction.shape,self.u.shape,f_prediction.shape,self.null.shape)
         # losses:
         u_loss = self.loss(u_prediction[:,0:2], torch.hstack((self.u_boundary,self.v_boundary)))
-
+        px_loss = self.loss(px_prediction, self.p_x_boundary)
+        py_loss = self.loss(py_prediction, self.p_y_boundary)
+        p_top_loss = self.loss(p_top_prediction, self.p_top_boundary)
         f_loss_1 = self.loss(f_prediction[0], self.null)
         f_loss_2 = self.loss(f_prediction[1], self.null)
         f_loss_3 = self.loss(f_prediction[2], self.null)
-        self.ls = u_loss + f_loss_1 + f_loss_2 + f_loss_3
+        self.ls = u_loss + px_loss + py_loss + p_top_loss + f_loss_1 + f_loss_2 + f_loss_3
         
         # derivative with respect to net's weights:
         self.ls.backward()
